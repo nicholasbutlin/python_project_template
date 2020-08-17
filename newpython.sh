@@ -101,7 +101,7 @@ def configureLogging():
 touch $CONFIGDIR/logging.yaml
 echo "---
 version: 1
-disable_existing_loggers: true
+disable_existing_loggers: false
 formatters:
   simple:
     format: '%(asctime)s - %(name)s - %(levelname)s - %(message)s'
