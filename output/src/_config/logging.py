@@ -1,37 +1,27 @@
 import logging.config
 from pathlib import Path
 
+import yaml
+
 DIR = Path(__file__).parent.absolute()
-LOGPATH = f'{DIR.parent.parent}/logs'
-
-
-def addDebugHandler(debugfilename):
-    .
-    dHandler = logging.handlers.RotatingFileHandler(debugfilename,
-                                                    mode='a',
-                                                    maxBytes=200000,
-                                                    backupCount=1,
-                                                    encoding=None,
-                                                    delay=False)
-
-    dFormatter = logging.Formatter('{asctime} - {name} - {levelname:8s} - {message}', style='{')
-    dHandler.setFormatter(dFormatter)
-    logging.getLogger().addHandler(dHandler)
+LOGPATH = DIR.parent.parent / 'logs'
 
 
 def configureLogging():
     .
     Path(LOGPATH).mkdir(exist_ok=True)
-    mainfilename = Path(f'{LOGPATH}/main.log')
+    mainfilename = LOGPATH / 'main.log'
+    debugfilename = LOGPATH / 'debug.log'
 
-    logging.config.fileConfig(fname=Path(f'{DIR}/logging.cfg'),
-                              defaults={
-                                  'mainfilename': mainfilename,
-                              },
-                              disable_existing_loggers=False)
+    with open(DIR / 'logging.yaml', 'r') as f:
+        log_cfg = yaml.full_load(f)
 
-    debugfilename = Path(f'{LOGPATH}/debug.log')
-    addDebugHandler(debugfilename)
+    log_cfg['handlers']['file_handler']['filename'] = mainfilename
+    log_cfg['handlers']['rotating_handler']['filename'] = debugfilename
+
+    print(log_cfg)
+
+    logging.config.dictConfig(log_cfg)
 
     # Set ERROR level logging on verbose modules
     modules = ['botocore', 'urllib3', 'googleapiclient']
