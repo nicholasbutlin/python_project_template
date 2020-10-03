@@ -1,7 +1,7 @@
 # Init pipenv and add a few basics
 # -------------------------------------------
-pipenv --three
-pipenv install -d flake8 yapf pylint ipykernel
+pipenv --python 3.8.1
+pipenv install -d flake8 yapf pylint ipykernel pre-commit
 pipenv install pyyaml
 
 # Initialise the linting and style settings
@@ -77,7 +77,7 @@ LOGPATH = DIR.parent.parent / 'logs'
 
 
 def configureLogging():
-    """."""
+    \"\"\".\"\"\"
     Path(LOGPATH).mkdir(exist_ok=True)
     mainfilename = LOGPATH / 'main.log'
     debugfilename = LOGPATH / 'debug.log'
@@ -87,8 +87,6 @@ def configureLogging():
 
     log_cfg['handlers']['file_handler']['filename'] = mainfilename
     log_cfg['handlers']['rotating_handler']['filename'] = debugfilename
-
-    print(log_cfg)
 
     logging.config.dictConfig(log_cfg)
 
@@ -141,18 +139,27 @@ echo "from pathlib import Path
 import yaml
 
 DIR = Path(__file__).parent.parent
-SETTINGS_PATH = Path(f'{DIR}/settings.yaml').absolute()
+SETTINGS_PATH = Path(DIR).absolute()
 
 
-def saveSettings(settings) -> None:
-    with open(SETTINGS_PATH, 'w') as f:
+def saveSettings(settings: dict, settings_path: Path = SETTINGS_PATH) -> None:
+    settings_path.mkdir(exist_ok=True, parents=True)
+    with open(settings_path / 'settings.yaml', 'w') as f:
         yaml.dump(settings, f)
 
 
-def loadSettings() -> dict:
-    with open(SETTINGS_PATH, 'r') as f:
+def loadSettings(settings_path: Path = SETTINGS_PATH) -> dict:
+    if (not (settings_path / 'settings.yaml').exists()):
+        saveSettings({})
+    with open(settings_path / 'settings.yaml', 'r') as f:
         settings = yaml.full_load(f)
     return settings
+
+
+def updateSettings(settings: dict, update: dict):
+    settings.update(update)
+    saveSettings(settings)
+
 
 " > $CONFIGDIR/settings.py
 
@@ -172,8 +179,88 @@ echo "{
 }
 " > .vscode/settings.json
 
+
+# \"python.formatting.yapfArgs\": [\"--fixers\", \"quotes\", \"--force-quote-type\", \"single\"],
+
 # Init files
-touch readme.md
+echo "
+# Project Name
+
+```text
+awesome name style
+```
+
+badges
+
+## Table of Contents
+
+- [Project Name](#project-name)
+  - [Table of Contents](#table-of-contents)
+  - [About The Project](#about-the-project)
+  - [Getting Started](#getting-started)
+    - [Prerequisites](#prerequisites)
+    - [Installation](#installation)
+  - [Usage](#usage)
+  - [Roadmap](#roadmap)
+  - [Contributing](#contributing)
+  - [License](#license)
+  - [Contact](#contact)
+  - [Acknowledgements](#acknowledgements)
+
+## About The Project
+
+template
+
+## Getting Started
+
+To get a local copy up and running follow these simple steps.
+
+### Prerequisites
+
+This is an example of how to list things you need to use the software and how to install them.
+
+```sh
+e.g.
+```
+
+### Installation
+
+1. Clone the repo
+
+```sh
+e.g.
+```
+
+## Usage
+
+Examples
+
+_For more examples, please refer to the [Documentation](https://)_
+
+## Roadmap
+
+See the [open issues](https://) for a list of proposed features (and known issues).
+
+## Contributing
+
+Contributions are what make the open source community such an amazing place to be learn, inspire, and create. Any contributions you make are **greatly appreciated**.
+
+1.
+
+## License
+
+None. See `LICENSE` for more information.
+
+## Contact
+
+Your Name - [@](https://twitter.com/) - email
+
+Project Link: [https://](https://)
+
+## Acknowledgements
+
+- [blank](link)
+" > README.md
 touch .env
 
 # Git repository
